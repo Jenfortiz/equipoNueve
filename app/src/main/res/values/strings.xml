@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">inventory</string>
+    <string name="app_name">Inventory</string>
+    <string name="appwidget_text">Text</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
+    <string name="inventory_question">¿Cuánto tengo de inventario?</string>
+    <string name="manage_inventory">Gestionar Inventario</string>
 </resources>
