@@ -7,6 +7,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.R
 import com.example.inventory.model.Inventory
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 
 class InventoryAdapter(
     private var items: List<Inventory>,
@@ -39,9 +41,17 @@ class InventoryAdapter(
         private val priceTextView: TextView = itemView.findViewById(R.id.tv_item_price)
 
         fun bind(item: Inventory) {
+
+            val symbols = DecimalFormatSymbols().apply {
+                groupingSeparator = '.'
+                decimalSeparator = ','
+            }
+            val formatter = DecimalFormat("#,##0.00", symbols)
+            val formattedPrice = "$ " + formatter.format(item.price)
+
             nameTextView.text = item.name
             idTextView.text = "Id: ${item.id}"
-            priceTextView.text = "$${item.price}"
+            priceTextView.text = formattedPrice
         }
     }
 }
