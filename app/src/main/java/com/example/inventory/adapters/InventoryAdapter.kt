@@ -35,6 +35,10 @@ class InventoryAdapter(
         notifyDataSetChanged()
     }
 
+    fun getItemAt(position: Int): Inventory {
+        return items[position]
+    }
+
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameTextView: TextView = itemView.findViewById(R.id.tv_item_name)
         private val idTextView: TextView = itemView.findViewById(R.id.tv_item_id)

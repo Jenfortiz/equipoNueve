@@ -2,7 +2,6 @@ package com.example.inventory.fragments
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,24 +9,24 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.inventory.R
 import com.example.inventory.adapters.InventoryAdapter
-import com.example.inventory.model.Inventory
 import com.example.inventory.sessions.SessionManager
 import com.example.inventory.ui.MainActivity
-import com.example.inventory.viewmodel.InventoryViewModelC
+import com.example.inventory.viewmodel.InventoryViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 
 class HomeInventoryFragment : Fragment() {
 
     private lateinit var sessionManager: SessionManager
-    private val viewModel: InventoryViewModelC by viewModels()
+    private val inventoryViewModel: InventoryViewModel by viewModels()
     private lateinit var inventoryAdapter: InventoryAdapter
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,37 +39,21 @@ class HomeInventoryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         sessionManager = SessionManager(requireContext())
 
-        // Initialize views
         recyclerView = view.findViewById(R.id.recyclerview)
         progressBar = view.findViewById(R.id.pbCircular)
 
         setupRecyclerView()
         setupLogoutButton(view)
         setupFabAdd(view)
-
         setupObservers()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.getListInventory()
+        setupSwipeToDelete()
     }
 
     private fun setupObservers() {
-        viewModel.listInventory.observe(viewLifecycleOwner) { items ->
-            Log.d("DEBUG_FRAGMENT", "LiveData recibió: ${items.size} items")
-            Log.d("DEBUG_FRAGMENT", "Contenido: $items")
+        inventoryViewModel.inventoryItems.observe(viewLifecycleOwner) { items ->
             inventoryAdapter.updateData(items)
-        }
-
-        viewModel.progressState.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading) {
-                progressBar.visibility = View.VISIBLE
-                recyclerView.visibility = View.GONE
-            } else {
-                progressBar.visibility = View.GONE
-                recyclerView.visibility = View.VISIBLE
-            }
+            progressBar.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
         }
     }
 
@@ -79,7 +62,8 @@ class HomeInventoryFragment : Fragment() {
         inventoryAdapter = InventoryAdapter(emptyList()) { inventory ->
             val fragment = ItemDetailsFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable("inventory_item", inventory)
+                    // Pass only the ID
+                    putString("inventory_item_id", inventory.id)
                 }
             }
             parentFragmentManager.beginTransaction()
@@ -88,6 +72,21 @@ class HomeInventoryFragment : Fragment() {
                 .commit()
         }
         recyclerView.adapter = inventoryAdapter
+    }
+
+    private fun setupSwipeToDelete() {
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val item = inventoryAdapter.getItemAt(viewHolder.adapterPosition)
+                inventoryViewModel.deleteInventoryItem(item)
+
+                Snackbar.make(requireView(), "Item Deleted", Snackbar.LENGTH_LONG)
+                    .setAction("UNDO") { inventoryViewModel.saveInventoryItem(item) }
+                    .show()
+            }
+        }).attachToRecyclerView(recyclerView)
     }
 
     private fun setupLogoutButton(view: View) {
@@ -104,12 +103,9 @@ class HomeInventoryFragment : Fragment() {
     private fun setupFabAdd(view: View) {
         val fabAdd = view.findViewById<FloatingActionButton>(R.id.fbagregar)
         fabAdd.setOnClickListener {
-
-            val addFragment = AddProductFragment()
-            parentFragmentManager
-                .beginTransaction()
-                .replace(R.id.main_fragment_container, addFragment)
-                .addToBackStack("add_product")
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.main_fragment_container, AddProductFragment())
+                .addToBackStack(null)
                 .commit()
         }
     }
