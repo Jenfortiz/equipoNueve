@@ -45,7 +45,6 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="Toggle Visibility"
             android:src="@android:drawable/ic_menu_view" />
-
     </LinearLayout>
 
     <TextView
