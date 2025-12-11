@@ -1,14 +1,16 @@
 package com.example.inventory.model
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.io.Serializable
+import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "inventory")
+@Parcelize
+@Entity(tableName = "inventory_items")
 data class Inventory(
-    @PrimaryKey(autoGenerate = false)
-    val id: Int = 0,
-    val name: String,
-    val price: Double,
-    val quantity: Int
-) : Serializable
+    @PrimaryKey
+    var id: String = "",
+    val name: String = "",
+    val price: Double = 0.0,
+    val quantity: Int = 0
+) : Parcelable

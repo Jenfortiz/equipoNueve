@@ -9,19 +9,16 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.inventory.R
 import com.example.inventory.model.Inventory
-import com.example.inventory.viewmodel.InventoryViewModelC
+import com.example.inventory.viewmodel.InventoryViewModel
 import com.google.android.material.textfield.TextInputEditText
 
-@Suppress("DEPRECATION")
 class UpdateProductFragment : Fragment() {
 
-    private val viewModel: InventoryViewModelC by viewModels()
+    private val viewModel: InventoryViewModel by viewModels()
     private lateinit var inventoryItem: Inventory
 
     private lateinit var etProductName: TextInputEditText
@@ -39,22 +36,14 @@ class UpdateProductFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mainLayout = view.findViewById<View>(R.id.edit_layout)
-        ViewCompat.setOnApplyWindowInsetsListener(mainLayout) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        inventoryItem = arguments?.getSerializable("inventory_item") as Inventory
+        // The Inventory item is now passed as a Parcelable
+        inventoryItem = arguments?.getParcelable("inventory_item")!!
 
         val toolbar: Toolbar = view.findViewById(R.id.toolbar_update)
-        toolbar.setNavigationOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
+        toolbar.setNavigationOnClickListener { parentFragmentManager.popBackStack() }
 
         val tvProductId: TextView = view.findViewById(R.id.tv_product_id)
-        tvProductId.text = inventoryItem.id.toString()
+        tvProductId.text = inventoryItem.id
 
         etProductName = view.findViewById(R.id.et_product_name)
         etProductPrice = view.findViewById(R.id.et_product_price)
@@ -77,9 +66,7 @@ class UpdateProductFragment : Fragment() {
         etProductPrice.addTextChangedListener(textWatcher)
         etProductQuantity.addTextChangedListener(textWatcher)
 
-        btnUpdate.setOnClickListener {
-            updateProduct()
-        }
+        btnUpdate.setOnClickListener { updateProduct() }
 
         validateFields()
     }
@@ -94,13 +81,12 @@ class UpdateProductFragment : Fragment() {
 
     private fun updateProduct() {
         val name = etProductName.text.toString().trim()
-        val price = etProductPrice.text.toString().trim().toDouble()
-        val quantity = etProductQuantity.text.toString().trim().toInt()
+        val price = etProductPrice.text.toString().toDoubleOrNull() ?: inventoryItem.price
+        val quantity = etProductQuantity.text.toString().toIntOrNull() ?: inventoryItem.quantity
 
         val updatedInventory = inventoryItem.copy(name = name, price = price, quantity = quantity)
-        viewModel.updateInventory(updatedInventory)
+        viewModel.updateInventoryItem(updatedInventory)
 
-        parentFragmentManager.popBackStack()
         parentFragmentManager.popBackStack()
     }
 }

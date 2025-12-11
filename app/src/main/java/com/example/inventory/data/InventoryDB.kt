@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.inventory.model.Inventory
 import com.example.inventory.utils.Constants.NAME_BD
 
-@Database(entities = [Inventory::class], version = 2, exportSchema = false)
+@Database(entities = [Inventory::class], version = 3, exportSchema = false)
 abstract class InventoryDB : RoomDatabase() {
     abstract fun inventoryDao(): InventoryDao
 
