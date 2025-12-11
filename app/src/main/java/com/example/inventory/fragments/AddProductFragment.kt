@@ -18,6 +18,8 @@ import com.example.inventory.R
 import com.example.inventory.model.Inventory
 import com.example.inventory.viewmodel.InventoryViewModelC
 import com.google.android.material.textfield.TextInputEditText
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 
 class AddProductFragment : Fragment() {
 
@@ -117,10 +119,7 @@ class AddProductFragment : Fragment() {
             val inventory = Inventory(code.toInt(), name, price.toDouble(), qty.toInt())
 
             inventoryViewModelC.saveInventory(inventory) { msg ->
-                // This is the correct sequence:
-                // 1. Show the confirmation message.
-                showToast(msg)
-                // 2. Navigate back AFTER the save is confirmed.
+                showToast("Producto Guardado")
                 parentFragmentManager.popBackStack()
             }
         }

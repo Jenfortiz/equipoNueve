@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.inventory.R
@@ -14,6 +16,8 @@ import com.example.inventory.model.Inventory
 import com.example.inventory.viewmodel.InventoryViewModelC
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 
 @Suppress("DEPRECATION")
 class ItemDetailsFragment : Fragment() {
@@ -30,6 +34,13 @@ class ItemDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val mainLayout = view.findViewById<View>(R.id.detail_layout)
+        ViewCompat.setOnApplyWindowInsetsListener(mainLayout) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+
         val inventoryItem = arguments?.getSerializable("inventory_item") as? Inventory
 
         view.findViewById<MaterialToolbar>(R.id.toolbarDetails).setNavigationOnClickListener {
@@ -37,6 +48,18 @@ class ItemDetailsFragment : Fragment() {
         }
 
         inventoryItem?.let { item ->
+
+            val symbols = DecimalFormatSymbols().apply {
+                groupingSeparator = '.'
+                decimalSeparator = ','
+            }
+
+            val formatter = DecimalFormat("#,##0.00", symbols)
+
+            val formattedPrice = "$ " + formatter.format(item.price)
+            val totalValue = item.quantity * item.price
+            val formattedTotal = "$" + formatter.format(totalValue)
+
             view.findViewById<TextView>(R.id.tvItem).text = item.name
             view.findViewById<TextView>(R.id.tvValorUnidad).text = "$${item.price}"
             view.findViewById<TextView>(R.id.tvCantidad).text = "${item.quantity}"

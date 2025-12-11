@@ -9,6 +9,8 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.inventory.R
@@ -36,6 +38,13 @@ class UpdateProductFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val mainLayout = view.findViewById<View>(R.id.edit_layout)
+        ViewCompat.setOnApplyWindowInsetsListener(mainLayout) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
 
         inventoryItem = arguments?.getSerializable("inventory_item") as Inventory
 
@@ -92,6 +101,6 @@ class UpdateProductFragment : Fragment() {
         viewModel.updateInventory(updatedInventory)
 
         parentFragmentManager.popBackStack()
-        parentFragmentManager.popBackStack() // To go back to the home screen
+        parentFragmentManager.popBackStack()
     }
 }

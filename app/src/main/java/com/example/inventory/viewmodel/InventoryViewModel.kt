@@ -12,6 +12,8 @@ import com.example.inventory.ui.widget.Inventory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -29,14 +31,20 @@ fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWid
         val items = repository.getListInventory()
         val totalValue = items.sumOf { it.price * it.quantity }
 
-        val currencyFormat = NumberFormat.getCurrencyInstance(Locale.US)
-        val formattedTotal = currencyFormat.format(totalValue)
+        val symbols = DecimalFormatSymbols().apply {
+            groupingSeparator = '.'
+            decimalSeparator = ','
+        }
+
+        val formatter = DecimalFormat("#,##0.00", symbols)
+
+        val formattedTotal = "$" + formatter.format(totalValue)
 
         if (isVisible) {
             views.setTextViewText(R.id.inventory_amount_text, formattedTotal)
             views.setImageViewResource(R.id.visibility_toggle_button, android.R.drawable.ic_menu_view)
         } else {
-            views.setTextViewText(R.id.inventory_amount_text, "***")
+            views.setTextViewText(R.id.inventory_amount_text, "****")
             views.setImageViewResource(R.id.visibility_toggle_button, android.R.drawable.ic_menu_close_clear_cancel)
         }
 
